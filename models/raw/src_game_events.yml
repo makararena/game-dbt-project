@@ -1,0 +1,82 @@
+version: 2
+
+sources:
+  - name: raw
+    description: Raw game analytics data loaded from CSV files into Snowflake
+    database: "{{ target.database }}"
+    schema: "{{ target.schema }}"
+    tables:
+      - name: raw_game_events
+        description: |
+          Raw game events data containing detailed event-level information.
+          Each row represents a single game event with event type, timestamp,
+          and event-specific properties stored as JSON in the properties column.
+        columns:
+          - name: event_id
+            description: Unique identifier for each game event
+            data_type: varchar(255)
+            tests:
+              - unique
+              - not_null
+          - name: event_time
+            description: Timestamp when the event occurred
+            data_type: string
+            tests:
+              - not_null
+          - name: player_id
+            description: Foreign key to raw_players table
+            data_type: varchar(255)
+            tests:
+              - not_null
+              - relationships:
+                  arguments:
+                    to: source('raw', 'raw_players')
+                    field: player_id
+          - name: event_name
+            description: |
+              Type of game event. Possible values:
+              - game_started: Game session initialization
+              - chapter_started: Player started a new chapter
+              - checkpoint_reached: Player reached a checkpoint
+              - enemy_killed: Player killed an enemy
+              - player_died: Player death event
+              - item_crafted: Player crafted an item
+              - chapter_completed: Player completed a chapter
+              - game_closed: Game session ended
+            data_type: varchar(100)
+            tests:
+              - not_null
+              - accepted_values:
+                  arguments:
+                    values:
+                      - 'game_started'
+                      - 'chapter_started'
+                      - 'checkpoint_reached'
+                      - 'enemy_killed'
+                      - 'player_died'
+                      - 'item_crafted'
+                      - 'chapter_completed'
+                      - 'game_closed'
+          - name: platform
+            description: Platform on which the event occurred
+            data_type: varchar(10)
+            tests:
+              - accepted_values:
+                  arguments:
+                    values: ['ps5', 'pc']
+          - name: game_version
+            description: Version of the game when the event occurred
+            data_type: varchar(20)
+          - name: properties
+            description: |
+              Event-specific properties stored as JSON (VARIANT type in Snowflake).
+              Structure varies by event_name:
+              - game_started: load_time_ms, resolution, fps_target, audio_quality
+              - chapter_started: chapter_id, chapter_name, location, weather, time_of_day
+              - checkpoint_reached: chapter_id, checkpoint_id, time_since_chapter_start_seconds, health_percentage, ammo_count, inventory_items
+              - enemy_killed: chapter_id, enemy_type, enemy_name, weapon_type, weapon_name, damage_dealt, headshot, distance_meters, xp_gained, stealth_kill
+              - player_died: chapter_id, death_reason, health_at_death, time_survived_seconds, last_enemy_type, location, death_count_in_chapter
+              - item_crafted: chapter_id, item_type, materials_used, crafting_time_seconds, success, workbench_used
+              - chapter_completed: chapter_id, completion_time_seconds, score, collectibles_found, deaths_count, enemies_killed, accuracy_percentage
+              - game_closed: session_duration_seconds, reason, total_deaths, total_enemies_killed, chapters_completed, achievements_unlocked, final_score
+            data_type: variant

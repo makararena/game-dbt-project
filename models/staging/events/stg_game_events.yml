@@ -1,0 +1,67 @@
+version: 2
+
+models:
+  - name: stg_game_events
+    description: |
+      Staging model for game events data. Cleans and standardizes raw event information
+      including timestamps, event names, platform, and preserves the properties JSON.
+    columns:
+      - name: event_id
+        description: Unique identifier for each game event
+        tests:
+          - unique
+          - not_null
+      
+      - name: event_at
+        description: Timestamp when the event occurred (converted to timestamp type)
+        tests:
+          - not_null
+      
+      - name: player_id
+        description: Foreign key to players table
+        tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('stg_players')
+                field: player_id
+      
+      - name: event_name
+        description: |
+          Type of game event (normalized to lowercase). Possible values:
+          - game_started: Game session initialization
+          - chapter_started: Player started a new chapter
+          - checkpoint_reached: Player reached a checkpoint
+          - enemy_killed: Player killed an enemy
+          - player_died: Player death event
+          - item_crafted: Player crafted an item
+          - chapter_completed: Player completed a chapter
+          - game_closed: Game session ended
+        tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values:
+                  - 'game_started'
+                  - 'chapter_started'
+                  - 'checkpoint_reached'
+                  - 'enemy_killed'
+                  - 'player_died'
+                  - 'item_crafted'
+                  - 'chapter_completed'
+                  - 'game_closed'
+      
+      - name: platform
+        description: Platform on which the event occurred (normalized to lowercase)
+        tests:
+          - accepted_values:
+              arguments:
+                values: ['ps5', 'pc']
+      
+      - name: game_version
+        description: Version of the game when the event occurred
+      
+      - name: properties
+        description: |
+          Event-specific properties stored as JSON (VARIANT type in Snowflake).
+          Structure varies by event_name. See raw source documentation for details.

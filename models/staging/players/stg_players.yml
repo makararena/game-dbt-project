@@ -1,0 +1,42 @@
+version: 2
+
+models:
+  - name: stg_players
+    description: |
+      Staging model for player data. Cleans and standardizes raw player information
+      including timestamps, country codes, language codes, and difficulty levels.
+    columns:
+      - name: player_id
+        description: Unique identifier for each player
+        tests:
+          - unique
+          - not_null
+      
+      - name: first_seen_at
+        description: Timestamp when the player was first seen in the system (converted to timestamp type)
+        tests:
+          - not_null
+      
+      - name: country_code
+        description: Two-letter country code in uppercase (e.g., US, PL, DE)
+        tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ['US', 'PL', 'DE', 'FR', 'ES', 'BY']
+      
+      - name: language_code
+        description: Language code in lowercase (e.g., en, pl, de)
+        tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ['en', 'pl', 'de', 'fr', 'es', 'be']
+      
+      - name: difficulty_selected
+        description: Game difficulty level selected by the player (normalized to lowercase)
+        tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ['easy', 'normal', 'hard', 'grounded']

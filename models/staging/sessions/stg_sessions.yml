@@ -1,0 +1,49 @@
+version: 2
+
+models:
+  - name: stg_sessions
+    description: |
+      Staging model for session data. Cleans and standardizes raw session information
+      including timestamps, platform, and calculates session duration.
+    columns:
+      - name: session_id
+        description: Unique identifier for each gaming session
+        tests:
+          - unique
+          - not_null
+      
+      - name: player_id
+        description: Foreign key to players table
+        tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('stg_players')
+                field: player_id
+      
+      - name: session_start_at
+        description: Timestamp when the gaming session started (converted to timestamp type)
+        tests:
+          - not_null
+      
+      - name: session_end_at
+        description: Timestamp when the gaming session ended (converted to timestamp type)
+        tests:
+          - not_null
+      
+      - name: platform
+        description: Platform on which the session was played (normalized to lowercase)
+        tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ['ps5', 'pc']
+      
+      - name: session_duration_minutes
+        description: Calculated duration of the session in minutes
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 0
+                inclusive: true

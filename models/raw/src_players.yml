@@ -1,0 +1,40 @@
+version: 2
+
+sources:
+  - name: raw
+    description: Raw game analytics data loaded from CSV files into Snowflake
+    database: "{{ target.database }}"
+    schema: "{{ target.schema }}"
+    tables:
+      - name: raw_players
+        description: |
+          Raw player data containing player demographics and preferences.
+          Each row represents a unique player with their first seen timestamp,
+          country, language, and selected difficulty level.
+        columns:
+          - name: player_id
+            description: Unique identifier for each player
+            data_type: varchar(255)
+            tests:
+              - unique
+              - not_null
+          - name: first_seen_at
+            description: Timestamp when the player was first seen in the system
+            data_type: string
+            tests:
+              - not_null
+          - name: country
+            description: Two-letter country code where the player is located
+            data_type: varchar(10)
+          - name: language
+            description: Language code for the player's preferred language
+            data_type: varchar(10)
+          - name: difficulty_selected
+            description: |
+              Game difficulty level selected by the player.
+              Options: easy, normal, hard, grounded
+            data_type: varchar(20)
+            tests:
+              - accepted_values:
+                  arguments:
+                    values: ['easy', 'normal', 'hard', 'grounded']

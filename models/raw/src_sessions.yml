@@ -1,0 +1,46 @@
+version: 2
+
+sources:
+  - name: raw
+    description: Raw game analytics data loaded from CSV files into Snowflake
+    database: "{{ target.database }}"
+    schema: "{{ target.schema }}"
+    tables:
+      - name: raw_sessions
+        description: |
+          Raw session data tracking player gaming sessions.
+          Each row represents a single gaming session with start/end times
+          and platform information.
+        columns:
+          - name: session_id
+            description: Unique identifier for each gaming session
+            data_type: varchar(255)
+            tests:
+              - unique
+              - not_null
+          - name: player_id
+            description: Foreign key to raw_players table
+            data_type: varchar(255)
+            tests:
+              - not_null
+              - relationships:
+                  arguments:
+                    to: source('raw', 'raw_players')
+                    field: player_id
+          - name: session_start
+            description: Timestamp when the gaming session started
+            data_type: string
+            tests:
+              - not_null
+          - name: session_end
+            description: Timestamp when the gaming session ended
+            data_type: string
+            tests:
+              - not_null
+          - name: platform
+            description: Platform on which the session was played
+            data_type: varchar(10)
+            tests:
+              - accepted_values:
+                  arguments:
+                    values: ['ps5', 'pc']
