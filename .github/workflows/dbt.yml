@@ -1,0 +1,35 @@
+name: dbt
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  dbt-compile:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dbt-snowflake
+        run: pip install dbt-snowflake
+
+      - name: dbt deps
+        run: dbt deps
+
+      - name: Generate profiles.yml from Secrets
+        run: |
+          mkdir -p ~/.dbt
+          printf '%s' "$PROFILE_CONTENT" > ~/.dbt/profiles.yml
+        env:
+          PROFILE_CONTENT: ${{ secrets.SNOWFLAKE_CI_PROFILE }}
+
+      - name: dbt compile (CI)
+        run: dbt compile --target ci

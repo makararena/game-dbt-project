@@ -2,22 +2,18 @@ name: game_analytics
 
 profile: game_analytics
 
-seed-paths: ["seeds"]
+
 model-paths: ["models"]
 macro-paths: ["macros"]
-clean-targets:
-  - "target"
-  - "dbt_packages"
-
-seeds:
-  # Builds seeds into '<your_schema_name>_raw'
-  game_analytics:
-    +schema: raw
+test-paths: ["tests"]
 
 models:
   game_analytics:
-    # Materialize staging models as views, and marts as tables
+    # Staging: views in STAGING schema
     staging:
       +materialized: view
+      +schema: staging
+    # Marts: tables in MARTS schema (core + analytics)
     marts:
       +materialized: table
+      +schema: marts

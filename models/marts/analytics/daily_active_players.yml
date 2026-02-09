@@ -1,0 +1,63 @@
+version: 2
+
+models:
+  - name: daily_active_players
+    description: |
+      Daily active players: one row per (session_date, platform, country_code,
+      difficulty_selected). Aggregates active_players (distinct count),
+      total_sessions, total_playtime_minutes, and per-player averages.
+    columns:
+      - name: session_date
+        description: Date of the session(s)
+        tests:
+          - not_null
+      - name: platform
+        description: Platform (e.g. ios, android)
+        tests:
+          - not_null
+      - name: country_code
+        description: Player country for the slice
+        tests:
+          - not_null
+      - name: difficulty_selected
+        description: Difficulty level for the slice
+        tests:
+          - not_null
+      - name: active_players
+        description: Distinct count of players for this date/platform/country/difficulty
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 0
+                inclusive: true
+      - name: total_sessions
+        description: Total sessions in this slice
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 0
+                inclusive: true
+      - name: total_playtime_minutes
+        description: Sum of session durations in minutes
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 0
+                inclusive: true
+      - name: avg_sessions_per_player
+        description: Average sessions per player in this slice
+        tests:
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 0
+                inclusive: true
+      - name: avg_playtime_minutes_per_player
+        description: Average playtime per player in minutes
+        tests:
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 0
+                inclusive: true

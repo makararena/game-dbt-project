@@ -32,7 +32,6 @@ events as (
 
 session_events as (
     -- Per session: flags for key funnel events (has_*) and counts (e.g. chapters_started_count).
-    -- Events matched by player_id and event_at within [session_start_at, session_end_at].
     select
         s.session_id,
         s.player_id,

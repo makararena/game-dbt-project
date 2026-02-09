@@ -1,0 +1,14 @@
+version: 2
+
+# Singular test: returns rows when a player has overlapping sessions (fail if any).
+# SQL file: sessions_no_overlap.sql
+tests:
+  - name: sessions_no_overlap
+    description: |
+      Ensures no two sessions for the same player overlap in time.
+      Fails if any pair of sessions (same player_id) has overlapping
+      [session_start, session_end] ranges. Used to keep session
+      attribution unambiguous (e.g. for fct_game_events).
+    config:
+      severity: error
+      store_failures: true

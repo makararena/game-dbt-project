@@ -1,0 +1,55 @@
+version: 2
+
+models:
+  - name: retention
+    description: |
+      Cohort retention: one row per (cohort_date, country_code, difficulty_selected,
+      days_since_cohort). Cohorts are defined by player first_seen_at date. Outputs
+      active_players, cohort_size, and retention_rate_pct (share of cohort active
+      on that day).
+    columns:
+      - name: cohort_date
+        description: Date defining the cohort (player first_seen_at date)
+        tests:
+          - not_null
+      - name: country_code
+        description: Player country for the cohort slice
+        tests:
+          - not_null
+      - name: difficulty_selected
+        description: Difficulty level for the cohort slice
+        tests:
+          - not_null
+      - name: days_since_cohort
+        description: Days since cohort_date (0 = cohort day, 1 = next day, etc.)
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 0
+                inclusive: true
+      - name: active_players
+        description: Count of distinct players from this cohort active on this day
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 0
+                inclusive: true
+      - name: cohort_size
+        description: Total players in this cohort (same for all days_since_cohort in the cohort)
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 0
+                inclusive: true
+      - name: retention_rate_pct
+        description: (active_players / cohort_size) * 100
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 0
+                max_value: 100
+                inclusive: true

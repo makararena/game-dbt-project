@@ -1,0 +1,129 @@
+version: 2
+
+models:
+  - name: funnel_sessions
+    description: |
+      Session funnel: one row per (session_date, platform, country_code, difficulty_selected).
+      Counts sessions that reached each funnel step (game_started, chapter_started,
+      checkpoint_reached, chapter_completed, game_closed), conversion rates (pct of
+      total_sessions), and average counts/duration.
+    columns:
+      - name: session_date
+        description: Date of the sessions
+        tests:
+          - not_null
+      - name: platform
+        description: Platform (e.g. ios, android)
+        tests:
+          - not_null
+      - name: country_code
+        description: Player country for the slice
+        tests:
+          - not_null
+      - name: difficulty_selected
+        description: Difficulty level for the slice
+        tests:
+          - not_null
+      - name: total_sessions
+        description: Total distinct sessions in this slice
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 0
+                inclusive: true
+      - name: sessions_with_game_started
+        description: Sessions that had at least one game_started event
+        tests:
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 0
+                inclusive: true
+      - name: sessions_with_chapter_started
+        description: Sessions that had at least one chapter_started event
+        tests:
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 0
+                inclusive: true
+      - name: sessions_with_checkpoint_reached
+        description: Sessions that had at least one checkpoint_reached event
+        tests:
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 0
+                inclusive: true
+      - name: sessions_with_chapter_completed
+        description: Sessions that had at least one chapter_completed event
+        tests:
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 0
+                inclusive: true
+      - name: sessions_with_game_closed
+        description: Sessions that had at least one game_closed event
+        tests:
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 0
+                inclusive: true
+      - name: game_started_rate_pct
+        description: Percentage of total_sessions with game_started
+        tests:
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 0
+                max_value: 100
+                inclusive: true
+      - name: chapter_started_rate_pct
+        description: Percentage of total_sessions with chapter_started
+        tests:
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 0
+                max_value: 100
+                inclusive: true
+      - name: checkpoint_reached_rate_pct
+        description: Percentage of total_sessions with checkpoint_reached
+        tests:
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 0
+                max_value: 100
+                inclusive: true
+      - name: chapter_completed_rate_pct
+        description: Percentage of total_sessions with chapter_completed
+        tests:
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 0
+                max_value: 100
+                inclusive: true
+      - name: avg_chapters_started
+        description: Average count of chapter_started events per session
+        tests:
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 0
+                inclusive: true
+      - name: avg_checkpoints_reached
+        description: Average count of checkpoint_reached events per session
+        tests:
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 0
+                inclusive: true
+      - name: avg_chapters_completed
+        description: Average count of chapter_completed events per session
+        tests:
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 0
+                inclusive: true
+      - name: avg_session_duration_minutes
+        description: Average session duration in minutes
+        tests:
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 0
+                inclusive: true

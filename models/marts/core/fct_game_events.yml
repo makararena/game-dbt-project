@@ -1,0 +1,51 @@
+version: 2
+
+models:
+  - name: fct_game_events
+    description: |
+      Fact table: one row per game event. Enriches events with session_id (matched
+      by player + time window), player attributes, and seconds_since_session_start.
+      Events outside any session have session_id = null.
+    columns:
+      - name: event_id
+        description: Unique identifier for each event
+        tests:
+          - unique
+          - not_null
+      - name: event_at
+        description: Event timestamp
+        tests:
+          - not_null
+      - name: player_id
+        description: Player who generated the event
+        tests:
+          - not_null
+      - name: session_id
+        description: Session this event belongs to (null if outside any session)
+      - name: event_name
+        description: Name of the event (e.g. game_started, player_died)
+        tests:
+          - not_null
+      - name: platform
+        description: Platform where the event occurred
+      - name: game_version
+        description: Game version at event time
+      - name: properties
+        description: Event-specific JSON properties (VARIANT)
+      - name: country_code
+        description: Player's country code
+      - name: language_code
+        description: Player's language code
+      - name: difficulty_selected
+        description: Player's selected difficulty
+      - name: session_start_at
+        description: Start of the session (null if event not in a session)
+      - name: session_end_at
+        description: End of the session (null if event not in a session)
+      - name: seconds_since_session_start
+        description: Seconds from session_start to event_at (null if no session)
+        tests:
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 0
+                inclusive: true

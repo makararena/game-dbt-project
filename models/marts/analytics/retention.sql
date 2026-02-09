@@ -77,6 +77,7 @@ final as (
             2
         ) as retention_rate_pct
     from cohort_retention
+    where retention_rate_pct < 100
 )
 
 select * from final

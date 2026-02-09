@@ -1,0 +1,76 @@
+version: 2
+
+models:
+  - name: dim_players
+    description: |
+      Player dimension: one row per player. Enriches player attributes with session
+      aggregates (total sessions, playtime, active days, first/last session) and
+      derived fields (days since first seen, days since last session).
+    columns:
+      - name: player_id
+        description: Unique identifier for each player
+        tests:
+          - unique
+          - not_null
+      - name: first_seen_at
+        description: Timestamp when the player was first seen in the system
+        tests:
+          - not_null
+      - name: country_code
+        description: Two-letter country code (e.g. US, PL, DE)
+        tests:
+          - not_null
+      - name: language_code
+        description: Language code (e.g. en, pl, de)
+        tests:
+          - not_null
+      - name: difficulty_selected
+        description: Game difficulty level selected by the player
+        tests:
+          - not_null
+      - name: total_sessions
+        description: Total number of sessions for this player (0 if none)
+        tests:
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 0
+                inclusive: true
+      - name: total_playtime_minutes
+        description: Sum of session durations in minutes
+        tests:
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 0
+                inclusive: true
+      - name: avg_session_duration_minutes
+        description: Average session duration in minutes (null if no sessions)
+        tests:
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 0
+                inclusive: true
+      - name: first_session_at
+        description: Timestamp of the player's first session
+      - name: last_session_at
+        description: Timestamp of the player's most recent session
+      - name: active_days
+        description: Count of distinct days with at least one session (0 if none)
+        tests:
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 0
+                inclusive: true
+      - name: days_since_first_seen
+        description: Days between first_seen_at and current date
+        tests:
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 0
+                inclusive: true
+      - name: days_since_last_session
+        description: Days since last session (null if no sessions)
+        tests:
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 0
+                inclusive: true

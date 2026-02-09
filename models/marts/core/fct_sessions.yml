@@ -1,0 +1,85 @@
+version: 2
+
+models:
+  - name: fct_sessions
+    description: |
+      Fact table: one row per gaming session. Joins sessions with player attributes
+      and session-level event aggregates (total events, deaths, enemies killed,
+      chapters completed, events per minute).
+    columns:
+      - name: session_id
+        description: Unique identifier for each session
+        tests:
+          - unique
+          - not_null
+      - name: player_id
+        description: Player who had this session
+        tests:
+          - not_null
+      - name: session_start_at
+        description: Session start timestamp
+        tests:
+          - not_null
+      - name: session_end_at
+        description: Session end timestamp
+        tests:
+          - not_null
+      - name: platform
+        description: Platform (e.g. ios, android)
+        tests:
+          - not_null
+      - name: session_duration_minutes
+        description: Session length in minutes
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 0
+                inclusive: true
+      - name: country_code
+        description: Player's country code
+      - name: language_code
+        description: Player's language code
+      - name: difficulty_selected
+        description: Player's selected difficulty
+      - name: total_events
+        description: Count of game events in this session (0 if none)
+        tests:
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 0
+                inclusive: true
+      - name: unique_event_types
+        description: Count of distinct event types in this session
+      - name: deaths_count
+        description: Count of player_died events in this session
+        tests:
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 0
+                inclusive: true
+      - name: enemies_killed
+        description: Count of enemy_killed events in this session
+        tests:
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 0
+                inclusive: true
+      - name: chapters_completed
+        description: Count of chapter_completed events in this session
+        tests:
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 0
+                inclusive: true
+      - name: first_event_at
+        description: Timestamp of first event in session
+      - name: last_event_at
+        description: Timestamp of last event in session
+      - name: events_per_minute
+        description: total_events / session_duration_minutes (0 if duration is 0)
+        tests:
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 0
+                inclusive: true

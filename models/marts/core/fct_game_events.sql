@@ -15,7 +15,6 @@ with events as (
 ),
 
 sessions as (
-    -- Session time windows for matching events (player_id, session_start_at, session_end_at).
     select
         session_id,
         player_id,
@@ -36,8 +35,6 @@ players as (
 ),
 
 events_with_sessions as (
-    -- Match events to sessions by player_id and event_at within [session_start_at, session_end_at].
-    -- Left join: events with no matching session keep session_id (and session times) null.
     select
         e.event_id,
         e.event_at,
@@ -51,7 +48,11 @@ events_with_sessions as (
         s.session_end_at,
         p.country_code,
         p.language_code,
-        p.difficulty_selected
+        p.difficulty_selected,
+        row_number() over (
+            partition by e.event_id
+            order by s.session_start_at asc nulls last
+        ) as rn
     from events e
     left join sessions s
         on e.player_id = s.player_id
@@ -61,8 +62,26 @@ events_with_sessions as (
         on e.player_id = p.player_id
 ),
 
+one_row_per_event as (
+    select
+        event_id,
+        event_at,
+        player_id,
+        session_id,
+        event_name,
+        platform,
+        game_version,
+        properties,
+        country_code,
+        language_code,
+        difficulty_selected,
+        session_start_at,
+        session_end_at
+    from events_with_sessions
+    where rn = 1
+),
+
 final as (
-    -- All event columns + session and player context; seconds_since_session_start for in-session events.
     select
         event_id,
         event_at,
@@ -82,7 +101,7 @@ final as (
             then datediff('second', session_start_at, event_at)
             else null
         end as seconds_since_session_start
-    from events_with_sessions
+    from one_row_per_event
 )
 
 select * from final
