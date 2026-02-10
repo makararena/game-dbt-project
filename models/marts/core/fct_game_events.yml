@@ -22,6 +22,11 @@ models:
           - not_null
       - name: session_id
         description: Session this event belongs to (null if outside any session)
+        tests:
+          - relationships:
+              arguments:
+                to: ref('fct_sessions')
+                field: session_id
       - name: event_name
         description: Name of the event (e.g. game_started, player_died)
         tests:

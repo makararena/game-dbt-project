@@ -16,6 +16,10 @@ models:
         description: Player who had this session
         tests:
           - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_players')
+                field: player_id
       - name: session_start_at
         description: Session start timestamp
         tests:
