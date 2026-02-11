@@ -1,0 +1,19 @@
+# dbt
+target/
+dbt_packages/
+dbt_internal_packages/
+
+# Python / env
+venv/
+.venv/
+env/
+
+# Dependencies & tooling
+node_modules/
+
+# Logs and cache
+logs/
+.cache/
+
+# Version control
+.git/

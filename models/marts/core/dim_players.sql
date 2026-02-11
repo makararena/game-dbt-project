@@ -36,20 +36,19 @@ final as (
         p.country_code,
         p.language_code,
         p.difficulty_selected,
-        coalesce(s.total_sessions, 0) as total_sessions,
-        coalesce(s.total_playtime_minutes, 0) as total_playtime_minutes,
         s.avg_session_duration_minutes,
         s.first_session_at,
         s.last_session_at,
+        coalesce(s.total_sessions, 0) as total_sessions,
+        coalesce(s.total_playtime_minutes, 0) as total_playtime_minutes,
         coalesce(s.active_days, 0) as active_days,
         datediff('day', p.first_seen_at, current_timestamp()) as days_since_first_seen,
         case
             when s.last_session_at is not null
-            then datediff('day', s.last_session_at, current_timestamp())
-            else null
+                then datediff('day', s.last_session_at, current_timestamp())
         end as days_since_last_session
-    from players p
-    left join sessions_agg s
+    from players as p
+    left join sessions_agg as s
         on p.player_id = s.player_id
 )
 

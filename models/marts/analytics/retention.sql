@@ -13,9 +13,9 @@ with players as (
     -- Cohort definition: player_id, cohort_date = date(first_seen_at), country, difficulty.
     select
         player_id,
-        date(first_seen_at) as cohort_date,
         country_code,
-        difficulty_selected
+        difficulty_selected,
+        date(first_seen_at) as cohort_date
     from {{ ref('stg_players') }}
 ),
 
@@ -36,10 +36,11 @@ player_sessions as (
         p.difficulty_selected,
         s.session_date,
         datediff('day', p.cohort_date, s.session_date) as days_since_cohort
-    from players p
-    inner join sessions s
-        on p.player_id = s.player_id
-        and s.session_date >= p.cohort_date
+    from players as p
+    inner join sessions as s
+        on
+            p.player_id = s.player_id
+            and p.cohort_date <= s.session_date
 ),
 
 cohort_retention as (
@@ -81,4 +82,4 @@ final as (
 )
 
 select * from final
-order by cohort_date desc, days_since_cohort, country_code, difficulty_selected
+order by cohort_date desc, days_since_cohort asc, country_code asc, difficulty_selected asc
