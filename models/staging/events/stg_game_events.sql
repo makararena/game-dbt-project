@@ -14,12 +14,12 @@ renamed as (
 
     select
         event_id,
-        try_to_timestamp(event_time) as event_at,
         player_id,
-        lower(event_name) as event_name,
-        lower(platform) as platform,
         game_version,
-        properties
+        properties,
+        try_to_timestamp(event_time) as event_at,
+        lower(event_name) as event_name,
+        lower(platform) as platform
     from source
 
 )

@@ -1,5 +1,33 @@
+# dbt
 dbt_packages/
 dbt_internal_packages/
 logs/
 target/
+
+# Environment & secrets
 .env
+.env.*
+!.env.example
+
+# Python
+env/
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+.mypy_cache/
+.pytest_cache/
+.coverage
+htmlcov/
+
+# IDE & OS
+.idea/
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+.DS_Store
+*.swp
+*.swo

@@ -53,12 +53,13 @@ events_with_sessions as (
             partition by e.event_id
             order by s.session_start_at asc nulls last
         ) as rn
-    from events e
-    left join sessions s
-        on e.player_id = s.player_id
-        and e.event_at >= s.session_start_at
-        and e.event_at <= s.session_end_at
-    left join players p
+    from events as e
+    left join sessions as s
+        on
+            e.player_id = s.player_id
+            and e.event_at >= s.session_start_at
+            and e.event_at <= s.session_end_at
+    left join players as p
         on e.player_id = p.player_id
 ),
 
@@ -98,8 +99,7 @@ final as (
         session_end_at,
         case
             when session_start_at is not null
-            then datediff('second', session_start_at, event_at)
-            else null
+                then datediff('second', session_start_at, event_at)
         end as seconds_since_session_start
     from one_row_per_event
 )

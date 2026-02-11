@@ -13,8 +13,8 @@ with sessions as (
     -- Per (player, date, platform): session count and total playtime.
     select
         player_id,
-        date(session_start_at) as session_date,
         platform,
+        date(session_start_at) as session_date,
         count(distinct session_id) as sessions_count,
         sum(session_duration_minutes) as total_playtime_minutes
     from {{ ref('stg_sessions') }}
@@ -45,8 +45,8 @@ final as (
         sum(s.total_playtime_minutes) as total_playtime_minutes,
         round(avg(s.sessions_count), 2) as avg_sessions_per_player,
         round(avg(s.total_playtime_minutes), 2) as avg_playtime_minutes_per_player
-    from sessions s
-    left join players p
+    from sessions as s
+    left join players as p
         on s.player_id = p.player_id
     group by
         s.session_date,
@@ -56,4 +56,4 @@ final as (
 )
 
 select * from final
-order by session_date desc, platform, country_code, difficulty_selected
+order by session_date desc, platform asc, country_code asc, difficulty_selected asc

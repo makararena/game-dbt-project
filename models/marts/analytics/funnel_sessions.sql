@@ -48,11 +48,12 @@ session_events as (
         count(case when e.event_name = 'chapter_started' then 1 end) as chapters_started_count,
         count(case when e.event_name = 'checkpoint_reached' then 1 end) as checkpoints_reached_count,
         count(case when e.event_name = 'chapter_completed' then 1 end) as chapters_completed_count
-    from sessions s
-    left join events e
-        on s.player_id = e.player_id
-        and e.event_at >= s.session_start_at
-        and e.event_at <= s.session_end_at
+    from sessions as s
+    left join events as e
+        on
+            s.player_id = e.player_id
+            and s.session_start_at <= e.event_at
+            and s.session_end_at >= e.event_at
     group by
         s.session_id,
         s.player_id,
@@ -74,10 +75,10 @@ players as (
 final as (
     -- Roll up by date, platform, country, difficulty: funnel counts, conversion pct, and averages.
     select
-        date(se.session_start_at) as session_date,
         se.platform,
         p.country_code,
         p.difficulty_selected,
+        date(se.session_start_at) as session_date,
         count(distinct se.session_id) as total_sessions,
         sum(se.has_game_started) as sessions_with_game_started,
         sum(se.has_chapter_started) as sessions_with_chapter_started,
@@ -104,8 +105,8 @@ final as (
         round(avg(se.checkpoints_reached_count), 2) as avg_checkpoints_reached,
         round(avg(se.chapters_completed_count), 2) as avg_chapters_completed,
         round(avg(se.session_duration_minutes), 2) as avg_session_duration_minutes
-    from session_events se
-    left join players p
+    from session_events as se
+    left join players as p
         on se.player_id = p.player_id
     group by
         date(se.session_start_at),
@@ -115,4 +116,4 @@ final as (
 )
 
 select * from final
-order by session_date desc, platform, country_code, difficulty_selected
+order by session_date desc, platform asc, country_code asc, difficulty_selected asc
